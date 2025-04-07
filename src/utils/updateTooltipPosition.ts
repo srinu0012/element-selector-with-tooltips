@@ -4,13 +4,9 @@ export const updateTooltipPosition = (
   tooltip: HTMLElement
 ) => {
   const rect = targetElement.getBoundingClientRect();
-  console.log(rect);
 
   if (rect.width > 0 && rect.height > 0) {
     tooltip.style.top = `${rect.top + 5}px`;
     tooltip.style.left = `${rect.left + rect.width + 5}px`;
-    tooltip.style.display = "block";
-  } else {
-    tooltip.style.display = "none";
   }
 };

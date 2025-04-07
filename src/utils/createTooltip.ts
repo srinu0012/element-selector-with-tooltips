@@ -1,4 +1,10 @@
 import { scrollParent } from "dom-helpers";
+import { updateTooltipPosition } from "./updateTooltipPosition";
+import {
+  addMutationObserver,
+  addResizeObserver,
+  addVisibilityObserver,
+} from "./observers";
 
 export const createTooltip = (
   targetElement: HTMLElement,
@@ -9,7 +15,7 @@ export const createTooltip = (
 
   const tooltip = document.createElement("div");
   Object.assign(tooltip.style, {
-    position: "fixed", // Use fixed position for consistent placement
+    position: "fixed",
     border: "1px solid black",
     color: "black",
     padding: "5px",
@@ -25,10 +31,10 @@ export const createTooltip = (
     backgroundColor: "white",
     boxShadow: "0px 2px 5px rgba(0,0,0,0.2)",
     cursor: "pointer",
-    zIndex: "99999999999999999999",
+    zIndex: "9999",
   });
 
-  tooltip.innerHTML = "<p>!</p>";
+  tooltip.innerHTML = "<span>!</span>";
 
   // Create hover tooltip
   const hoverTooltip = document.createElement("div");
@@ -42,7 +48,7 @@ export const createTooltip = (
     padding: "6px 10px",
     borderRadius: "5px",
     fontSize: "12px",
-    whiteSpace: "nowrap",
+    // whiteSpace: "nowrap",
     opacity: "0",
     transition: "opacity 0.3s ease, transform 0.2s ease",
     pointerEvents: "none",
@@ -79,93 +85,34 @@ export const createTooltip = (
     hoverTooltip.style.transform = "translateX(-50%) translateY(0px)";
   });
 
-  // Function to update tooltip position
-  const updateTooltipPosition = () => {
-    const rect = targetElement.getBoundingClientRect();
-
-    if (rect.width > 0 && rect.height > 0) {
-      tooltip.style.top = `${rect.top + 5}px`;
-      tooltip.style.left = `${rect.left + rect.width + 5}px`;
-      tooltip.style.display = "block";
-    } else {
-      tooltip.style.display = "none";
-    }
-  };
-
-  updateTooltipPosition();
+  updateTooltipPosition(targetElement, tooltip);
   document.body.appendChild(tooltip);
 
   // Handle Summary Expand/Collapse
   let detailsParent = targetElement.closest("details");
   if (detailsParent) {
     detailsParent.addEventListener("toggle", () => {
-      setTimeout(updateTooltipPosition, 50); // Update after animation
+      updateTooltipPosition(targetElement, tooltip);
+      tooltip.style.display = "none";
     });
   }
 
-  const visibilityObserver = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        tooltip.style.display = entry.isIntersecting ? "block" : "none";
-      });
-    },
-    { threshold: 0.9 }
-  );
+  // Set visibility observer for this target element based on that tooltip will display or not
+  addVisibilityObserver(targetElement, tooltip);
 
-  visibilityObserver.observe(targetElement);
+  // Set resize observer to Adjust on Resizing
+  addResizeObserver(targetElement, tooltip);
 
-  // Resize Observer to Adjust on Resizing
-  const resizeObserver = new ResizeObserver(() => {
-    updateTooltipPosition();
-  });
-  resizeObserver.observe(targetElement);
+  // Set mutation observer for DOM changes
+  addMutationObserver(targetElement, tooltip);
 
   // Scroll listener for window
-  window.addEventListener("scroll", updateTooltipPosition);
+  window.addEventListener("scroll", () =>
+    updateTooltipPosition(targetElement, tooltip)
+  );
 
   // Scroll listener for static scroll parent element
-  scrollParent(targetElement).addEventListener("scroll", updateTooltipPosition);
-
-  const mutation = new MutationObserver(() => {
-    updateTooltipPosition();
-  });
-
-  mutation.observe(document.body, {
-    attributes: true,
-    subtree: true,
-    childList: true,
-  });
-
-  // const observer = new MutationObserver((_mutations) => {
-  //   console.log("mutation");
-  // });
-
-  // observer.observe(document.body, {
-  //   childList: true,
-  //   subtree: true,
-  //   attributes: true,
-  // });
-
-  // for dragable containers
-  // targetElement.parentElement?.addEventListener("drag", updateTooltipPosition);
-  // targetElement.parentElement?.addEventListener(
-  //   "dragover",
-  //   updateTooltipPosition
-  // );
-  // targetElement.parentElement?.addEventListener(
-  //   "dragend",
-  //   updateTooltipPosition
-  // );
-  // targetElement.parentElement?.parentElement?.addEventListener(
-  //   "drag",
-  //   updateTooltipPosition
-  // );
-  // targetElement.parentElement?.parentElement?.addEventListener(
-  //   "dragover",
-  //   updateTooltipPosition
-  // );
-  // targetElement.parentElement?.parentElement?.addEventListener(
-  //   "dragend",
-  //   updateTooltipPosition
-  // );
+  scrollParent(targetElement).addEventListener("scroll", () =>
+    updateTooltipPosition(targetElement, tooltip)
+  );
 };

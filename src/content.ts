@@ -118,61 +118,13 @@ chrome.storage.local.get(null, async (storageData) => {
   }
 });
 
-// Create existed tooltips for first time
-savedTooltips().forEach(({ ele, content, pathName }) => {
-  const target = document.querySelector(ele);
-  if (target) createTooltip(target as HTMLElement, content, pathName);
-});
+// Create existed tooltips and append for first time
+const appendTooltips = async () => {
+  const tooltips = await savedTooltips();
+  tooltips.forEach(({ ele, content, pathName }) => {
+    const target = document.querySelector(ele);
+    if (target) createTooltip(target as HTMLElement, content, pathName);
+  });
+};
 
-// function for checking element has scroll property
-// function isScrollable(el: HTMLElement): boolean {
-//   const style = getComputedStyle(el);
-//   const overflowY = style.overflowY;
-//   const overflowX = style.overflowX;
-
-//   const canScrollY =
-//     (overflowY === "auto" || overflowY === "scroll") &&
-//     el.scrollHeight > el.clientHeight;
-
-//   const canScrollX =
-//     (overflowX === "auto" || overflowX === "scroll") &&
-//     el.scrollWidth > el.clientWidth;
-
-//   return canScrollY || canScrollX;
-// }
-
-// function for getting scroll elements
-// function getAllScrollableParents(targetElement: HTMLElement): HTMLElement[] {
-//   const scrollableParents: HTMLElement[] = [];
-//   let parent = targetElement.parentElement;
-
-//   while (parent) {
-//     if (isScrollable(parent)) {
-//       scrollableParents.push(parent);
-//     }
-//     parent = parent.parentElement;
-//   }
-//   return scrollableParents;
-// }
-
-// setTimeout(() => {
-//   const savedTooltips: { ele: string; content: string; pathName: string }[] =
-//     JSON.parse(localStorage.getItem("tooltips")!) || [];
-
-//   savedTooltips.forEach(({ ele, content, pathName }) => {
-//     const target = document.querySelector(ele);
-//     if (target) createTooltip(target as HTMLElement, content, pathName);
-//   });
-// }, 10 * 1000);
-
-// window.document.addEventListener("DOMContentLoaded", () => {
-//   console.log("<<<<<<<loaded dom");
-
-//   const savedTooltips: { ele: string; content: string; pathName: string }[] =
-//     JSON.parse(localStorage.getItem("tooltips")!) || [];
-
-//   savedTooltips.forEach(({ ele, content, pathName }) => {
-//     const target = document.querySelector(ele);
-//     if (target) createTooltip(target as HTMLElement, content, pathName);
-//   });
-// });
+appendTooltips();
