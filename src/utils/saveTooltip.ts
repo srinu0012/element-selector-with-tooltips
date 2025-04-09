@@ -18,9 +18,18 @@ export const saveTooltip: (
   content: string
 ) => Promise<void> = async (target: HTMLElement, content: string) => {
   // Get existing tooltips from extension local Storage
-  const { tooltips } = await chrome.storage.local.get("tooltips");
+  let { tooltips } = await chrome.storage.local.get("tooltips");
   const uniqueSelector = finder(target);
-  tooltips.push({ ele: uniqueSelector, content, pathName: location.pathname });
+  console.log("tooltips occured", uniqueSelector, tooltips);
+  if (tooltips) {
+    tooltips?.push({
+      ele: uniqueSelector,
+      content,
+      pathName: location.pathname,
+    });
+  } else {
+    tooltips = [{ ele: uniqueSelector, content, pathName: location.pathname }];
+  }
 
   // add new tooltip and store in extension local Storage
   chrome.storage.local.set({ tooltips: tooltips });

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Switch, FormControlLabel, Typography, Box } from "@mui/material";
-import { getCurrentTabId } from "./utils/getCurrentTabId";
+import { getCurrentTabId } from "../utils/getCurrentTabId";
 
 const ElementSelector = () => {
   const [isOn, setIsOn] = useState(false);

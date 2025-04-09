@@ -1,9 +1,9 @@
-import { scrollParent } from "dom-helpers";
+// import { scrollParent } from "dom-helpers";
 import { updateTooltipPosition } from "./updateTooltipPosition";
 import {
-  addMutationObserver,
+  // addMutationObserver,
   addResizeObserver,
-  addVisibilityObserver,
+  // addVisibilityObserver,
 } from "./observers";
 
 export const createTooltip = (
@@ -48,7 +48,6 @@ export const createTooltip = (
     padding: "6px 10px",
     borderRadius: "5px",
     fontSize: "12px",
-    // whiteSpace: "nowrap",
     opacity: "0",
     transition: "opacity 0.3s ease, transform 0.2s ease",
     pointerEvents: "none",
@@ -98,21 +97,23 @@ export const createTooltip = (
   }
 
   // Set visibility observer for this target element based on that tooltip will display or not
-  addVisibilityObserver(targetElement, tooltip);
+  // addVisibilityObserver(targetElement, tooltip);
 
   // Set resize observer to Adjust on Resizing
   addResizeObserver(targetElement, tooltip);
 
   // Set mutation observer for DOM changes
-  addMutationObserver(targetElement, tooltip);
+  // addMutationObserver(targetElement, tooltip);
 
   // Scroll listener for window
-  window.addEventListener("scroll", () =>
-    updateTooltipPosition(targetElement, tooltip)
+  window.addEventListener(
+    "scroll",
+    () => updateTooltipPosition(targetElement, tooltip),
+    { capture: true }
   );
 
   // Scroll listener for static scroll parent element
-  scrollParent(targetElement).addEventListener("scroll", () =>
-    updateTooltipPosition(targetElement, tooltip)
-  );
+  //   scrollParent(targetElement).addEventListener("scroll", () =>
+  //     updateTooltipPosition(targetElement, tooltip)
+  //   );
 };

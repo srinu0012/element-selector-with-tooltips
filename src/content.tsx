@@ -1,14 +1,16 @@
-import { savedTooltips } from "./utils/getSavedTooltips";
-import { createTooltip } from "./utils/createTooltip";
-import { saveTooltip } from "./utils/saveTooltip";
+// import { savedTooltips } from "./utils/getSavedTooltips";
+// import { createTooltip } from "./utils/createTooltip";
+// import { saveTooltip } from "./utils/saveTooltip";
+// import CustomTooltip from "./components/Tooltip.components";
+// import { createRoot } from "react-dom/client";
+
+console.log("Content script injected", window.location.origin);
 
 // get current tabId
 const getCurrentTabId = async () => {
   const tabId = await chrome.runtime.sendMessage({ action: "getTabId" });
   return tabId;
 };
-
-console.log("Content script injected", window.location.origin);
 
 // create div for highlighting the elements
 const div = document.createElement("div");
@@ -44,12 +46,35 @@ const clickListner = async (e: MouseEvent) => {
   const target = e.target;
 
   if (target instanceof HTMLElement) {
-    const content = prompt("Enter tooltip content");
+    const content = prompt("Enter tooltip content") || "";
+    console.log(content);
 
-    if (content) {
-      createTooltip(target, content);
-      saveTooltip(target, content);
-    }
+    const rect = target.getBoundingClientRect();
+
+    // Send position and content to the top window
+    window.top?.postMessage(
+      {
+        type: "SHOW_TOOLTIP",
+        content,
+        rect: {
+          top: rect.top,
+          left: rect.left,
+          width: rect.width,
+          height: rect.height,
+        },
+      },
+      "*"
+    );
+
+    // if (content) {
+    //   // 1. Create a container div (if it doesn't already exist)
+    //   const container = document.createElement("div");
+    //   document.body.appendChild(container);
+    //   createRoot(container).render(
+    //     <CustomTooltip target={target} content={content} />
+    //   );
+    //   saveTooltip(target, content);
+    // }
   }
 
   // Disable listeners after selection
@@ -119,12 +144,35 @@ chrome.storage.local.get(null, async (storageData) => {
 });
 
 // Create existed tooltips and append for first time
-const appendTooltips = async () => {
-  const tooltips = await savedTooltips();
-  tooltips.forEach(({ ele, content, pathName }) => {
-    const target = document.querySelector(ele);
-    if (target) createTooltip(target as HTMLElement, content, pathName);
-  });
-};
+// const appendTooltips = async () => {
+//   const tooltips = await savedTooltips();
+//   tooltips?.forEach(({ ele, content, pathName }) => {
+//     const target = document.querySelector(ele);
+//     console.log("pathhhhh", pathName, location.pathname);
 
-appendTooltips();
+//     if (target && pathName == location.pathname) {
+//       console.log("true", target);
+//       // 1. Create a container div (if it doesn't already exist)
+//       const container = document.createElement("div");
+//       document.body.appendChild(container);
+//       createRoot(container).render(
+//         <CustomTooltip target={target} content={content} />
+//       );
+//     }
+//   });
+// };
+
+// appendTooltips();
+
+// ======================================================
+(async () => {
+  if (window.top == window.self) {
+    // Add this to your top-level React app or plain JS in content.js
+    window.addEventListener("message", (event) => {
+      const data = event.data;
+      if (data?.type === "SHOW_TOOLTIP") {
+        console.log("Tooltip Data:", data);
+      }
+    });
+  }
+})();

@@ -1,5 +1,4 @@
 import { createRoot } from "react-dom/client";
-import "./index.css";
-import ElementSelector from "./ElementSelector .tsx";
+import ElementSelector from "./element-selector/ElementSelector .tsx";
 
 createRoot(document.getElementById("root")!).render(<ElementSelector />);

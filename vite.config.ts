@@ -6,11 +6,12 @@ export default defineConfig({
   plugins: [react()],
   build: {
     outDir: "dist",
+    emptyOutDir: false,
     rollupOptions: {
       input: {
-        popup: "index.html",
-        background: "src/background.ts",
-        content: "src/content.ts",
+        // popup: "index.html",
+        // background: "src/background.ts",
+        content: "src/content.tsx",
       },
       output: {
         format: "esm",
